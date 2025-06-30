@@ -1,0 +1,117 @@
+def create_villa(origin=(0, 0, 0)):
+    ox, oy, oz = origin
+
+    # --- Οικόπεδο ---
+    bpy.ops.mesh.primitive_plane_add(size=20, location=(ox, oy, oz))
+    lot = bpy.context.active_object
+    lot.name = "VillaLot"
+
+    # --- Σπίτι ---
+    house_width, house_length, house_height = 8, 8, 8
+    house_z = oz + house_height / 2
+    bpy.ops.mesh.primitive_cube_add(location=(ox, oy + 3, house_z))
+    house = bpy.context.active_object
+    house.name = "House"
+    house.scale = (house_width / 2, house_length / 2, house_height / 2)
+    bpy.ops.object.transform_apply(scale=True)
+
+    mat_house = bpy.data.materials.new(name="HouseMaterial")
+    mat_house.diffuse_color = (0.8, 0.6, 0.4, 1)
+    house.data.materials.append(mat_house)
+    
+    # --- Σκεπή (πυραμίδα) ---
+
+    roof_height = 2
+    roof_z = house_z + house_height / 2 + roof_height / 2
+    bpy.ops.mesh.primitive_cone_add(
+        vertices=4,
+        radius1=1,  # θα διορθωθεί με scale
+        depth=roof_height,
+        location=(ox, oy + 3, roof_z)
+    )
+    roof = bpy.context.active_object
+    roof.rotation_euler[2] = math.radians(45)
+    # Scale ελαφρώς μεγαλύτερο για να καλύπτει τέλεια
+    roof.scale = (house_width * 0.8, house_length * 0.8, 1)
+    roof.name = "Roof"
+
+    mat_roof = bpy.data.materials.new(name="RoofMaterial")
+    mat_roof.diffuse_color = (0.4, 0, 0, 1)
+    roof.data.materials.append(mat_roof)
+
+    # --- Πισίνα με χείλος ---
+    pool_width, pool_length, pool_depth = 6, 4, 1
+    pool_lip = 0.1
+    pool_z = oz - pool_depth / 2 + pool_lip
+    bpy.ops.mesh.primitive_cube_add(location=(ox - 5, oy - 5, pool_z))
+    pool = bpy.context.active_object
+    pool.name = "Pool"
+    pool.scale = (pool_width / 2, pool_length / 2, pool_depth / 2)
+
+    mat_pool = bpy.data.materials.new(name="PoolMaterial")
+    mat_pool.diffuse_color = (0.2, 0.6, 1.0, 1)
+    pool.data.materials.append(mat_pool)
+
+    # --- Φράχτης ---
+    fence_height = 1.5
+    fence_spacing = 2
+    lot_half = 10
+
+    # Κάθετοι πάσαλοι
+    for dx in range(-lot_half, lot_half + 1, fence_spacing):
+        for dy in [-lot_half, lot_half]:
+            bpy.ops.mesh.primitive_cube_add(location=(ox + dx, oy + dy, oz + fence_height / 2))
+            fence = bpy.context.active_object
+            fence.scale = (0.1, 0.1, fence_height / 2)
+            fence.name = f"Fence_{dx}_{dy}"
+
+    for dy in range(-lot_half + 2, lot_half - 1, fence_spacing):
+        for dx in [-lot_half, lot_half]:
+            bpy.ops.mesh.primitive_cube_add(location=(ox + dx, oy + dy, oz + fence_height / 2))
+            fence = bpy.context.active_object
+            fence.scale = (0.1, 0.1, fence_height / 2)
+            fence.name = f"Fence_{dx}_{dy}"
+
+    # Οριζόντιες δοκοί
+    for z in [0.5, 1.0]:
+        # επάνω και κάτω πλευρά
+        for dy in [-lot_half, lot_half]:
+            bpy.ops.mesh.primitive_cube_add(location=(ox, oy + dy, oz + z))
+            beam = bpy.context.active_object
+            beam.scale = (lot_half, 0.05, 0.05)
+            beam.name = f"Beam_Y_{dy}_Z{z}"
+        # δεξιά και αριστερή πλευρά
+        for dx in [-lot_half, lot_half]:
+            bpy.ops.mesh.primitive_cube_add(location=(ox + dx, oy, oz + z))
+            beam = bpy.context.active_object
+            beam.scale = (0.05, lot_half - 1, 0.05)
+            beam.name = f"Beam_X_{dx}_Z{z}"
+
+    # Μορφοποίηση φράχτη
+    mat_fence = bpy.data.materials.new(name="FenceMaterial")
+    mat_fence.diffuse_color = (0.4, 0.25, 0.1, 1)
+    for obj in bpy.context.scene.objects:
+        if obj.name.startswith("Fence") or obj.name.startswith("Beam"):
+            obj.data.materials.append(mat_fence)
+
+    # --- Δέντρα ---
+    def add_tree(x, y):
+        # Κορμός
+        bpy.ops.mesh.primitive_cylinder_add(radius=0.2, depth=2, location=(ox + x, oy + y, oz + 1))
+        trunk = bpy.context.active_object
+        trunk.name = "Trunk"
+        mat_trunk = bpy.data.materials.new(name="TrunkMaterial")
+        mat_trunk.diffuse_color = (0.4, 0.2, 0.1, 1)
+        trunk.data.materials.append(mat_trunk)
+
+        # Φύλλωμα
+        bpy.ops.mesh.primitive_uv_sphere_add(radius=1, location=(ox + x, oy + y, oz + 2.8))
+        leaves = bpy.context.active_object
+        leaves.name = "Leaves"
+        mat_leaves = bpy.data.materials.new(name="LeavesMaterial")
+        mat_leaves.diffuse_color = (0.1, 0.5, 0.1, 1)
+        leaves.data.materials.append(mat_leaves)
+
+    tree_positions = [(-7, -8), (-8, 6), (6, -6), (7, 4), (0, -9)]
+    for pos in tree_positions:
+        add_tree(*pos)
