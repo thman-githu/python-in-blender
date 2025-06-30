@@ -1,0 +1,65 @@
+def create_square(origin=(0, 0, 0)):
+    ox, oy, oz = origin
+
+    # --- Πλατεία ---
+    bpy.ops.mesh.primitive_plane_add(size=20, location=(ox, oy, oz + 0.05))  # λίγο πάνω από τον δρόμο
+    square = bpy.context.active_object
+    square.name = "Square"
+
+    square_mat = bpy.data.materials.new(name="SquareMaterial")
+    square_mat.diffuse_color = (0.6, 0.6, 0.6, 1)  # γκρι
+    square.data.materials.append(square_mat)
+
+    # --- Παγκάκια ---
+    bench_width = 2
+    bench_depth = 0.5
+    bench_height = 0.4
+
+    bench_positions = [
+        (ox - 8, oy + 2, oz + bench_height / 2),  # πάνω αριστερά
+        (ox - 8, oy - 2, oz + bench_height / 2),  # κάτω αριστερά
+        (ox - 8, oy + 6, oz + bench_height / 2),  # κάτω αριστερά        
+        (ox + 8, oy + 2, oz + bench_height / 2),  # πάνω δεξιά
+        (ox + 8, oy - 2, oz + bench_height / 2),  # κάτω δεξιά
+        (ox + 8, oy + 6, oz + bench_height / 2),  # κάτω δεξιά
+    ]
+
+    for i, pos in enumerate(bench_positions):
+        bpy.ops.mesh.primitive_cube_add(location=pos)
+        bench = bpy.context.active_object
+        bench.name = f"Bench_{i}"
+        bench.scale = (bench_depth / 2, bench_width / 2, bench_height / 2)
+
+        mat_bench = bpy.data.materials.new(name=f"BenchMaterial_{i}")
+        mat_bench.diffuse_color = (0.4, 0.2, 0.1, 1)
+        bench.data.materials.append(mat_bench)
+
+    # --- Βάθρο για το έργο τέχνης στην απέναντι πλευρά (κάτω πλευρά) ---
+    pedestal_width = 1.5
+    pedestal_height = 1
+    pedestal_z = oz + pedestal_height / 2
+    mat_pedestal = bpy.data.materials.new(name="PedestalMaterial")
+    mat_pedestal.diffuse_color = (0.3, 0.3, 0.3, 1)  # σκουρότερο γκρι
+
+    bpy.ops.mesh.primitive_cube_add(location=(ox, oy - 8, pedestal_z))
+    pedestal = bpy.context.active_object
+    pedestal.name = "Pedestal"
+    pedestal.scale = (pedestal_width / 2, pedestal_width / 2, pedestal_height / 2)
+    pedestal.data.materials.append(mat_pedestal)
+
+    # --- Όρθιος Δακτύλιος (έργο τέχνης) στην απέναντι πλευρά ---
+    ring_radius = 1.5
+    ring_thickness = 0.2
+    ring_z = pedestal_z + pedestal_height / 2 + 1.2
+    mat_ring = bpy.data.materials.new(name="ArtRingMaterial")
+    mat_ring.diffuse_color = (1.0, 0.8, 0.2, 1)  # χρυσό
+
+    bpy.ops.mesh.primitive_torus_add(
+        major_radius=ring_radius,
+        minor_radius=ring_thickness,
+        location=(ox, oy - 8, ring_z)
+    )
+    ring = bpy.context.active_object
+    ring.name = "ArtRing"
+    ring.rotation_euler[0] = math.radians(90)
+    ring.data.materials.append(mat_ring)
