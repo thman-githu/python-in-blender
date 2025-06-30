@@ -1,0 +1,19 @@
+# Δημιουργία υλικού γραμμής (λευκό)
+line_mat = bpy.data.materials.new(name="LineMaterial")
+line_mat.diffuse_color = (1, 1, 1, 1)
+
+# Παράμετροι διαγράμμισης
+num_lines = 15
+line_length = 1.0
+gap = 1.0
+
+total_spacing = line_length + gap
+start_x = -((num_lines - 1) * total_spacing) / 2
+
+for i in range(num_lines):
+    x = start_x + i * total_spacing
+    bpy.ops.mesh.primitive_cube_add(location=(x, 0, 0.051))  # Λίγο πάνω από τον δρόμο
+    line = bpy.context.active_object
+    line.scale = (line_length / 2, 0.1, 0.001)  # Λεπτή και στενή
+    line.name = f"Line_{i}"
+    line.data.materials.append(line_mat)
