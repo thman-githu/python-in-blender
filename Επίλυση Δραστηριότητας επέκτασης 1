@@ -1,0 +1,4 @@
+# ---- Δραστηριότητα επέκτασης 1
+road_length = 100
+total_spacing = line_length + gap
+num_lines = int(road_length/total_spacing)
