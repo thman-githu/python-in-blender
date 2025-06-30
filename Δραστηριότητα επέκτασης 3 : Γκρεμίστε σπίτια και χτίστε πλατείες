@@ -1,0 +1,11 @@
+create_villa(origin=(40, 20, 0))     # Πάνω από τον δρόμο
+create_villa(origin=(20, 20, 0))     # Πάνω από τον δρόμο
+create_square(origin=(0, 20, 0))   # Πλατεία πανω από τον δρόμο
+create_villa(origin=(-20, 20, 0))     # Πάνω από τον δρόμο
+create_villa(origin=(-40, 20, 0))     # Πάνω από τον δρόμο
+
+create_villa(origin=(-40, -20, 0))     # κάτω από τον δρόμο
+create_villa(origin=(-20, -20, 0))     # κάτω από τον δρόμο
+create_villa(origin=(0, -20, 0))     # κάτω από τον δρόμο
+create_square(origin=(20, -20, 0))   # Πλατεία κάτω από τον δρόμο
+create_villa(origin=(40, -20, 0))     # κάτω από τον δρόμο
